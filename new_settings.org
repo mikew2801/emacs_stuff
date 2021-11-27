@@ -1,0 +1,1465 @@
+#+title: New Emacs Configuration
+#+PROPERTY: header-args:emacs-lisp :tangle ~/Dropbox/3_Emacs/Common/new_main.el
+
+* Suppress Warnings
+
+This is setup to suppress warnings about the system tray and so on.
+
+#+begin_src emacs-lisp
+(setq warning-minimum-level :emergency)
+#+end_src
+
+
+
+* Package Settings
+  
+Set up package sources and initialize the package system.
+
+#+begin_src emacs-lisp
+(setq default-directory "~/Dropbox/3_Emacs")
+(add-to-list 'load-path "~/.emacs.d/lisp/")
+(add-to-list 'load-path "/home/michael/Dropbox/3_Emacs/")
+
+(setq package-check-signature nil)
+
+(require 'package)
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("org" . "https://orgmode.org/elpa/")
+                         ("elpa" . "https://elpa.gnu.org/packages/")))
+
+;(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+(package-initialize)
+
+(add-to-list 'load-path "~/.emacs.d/el-get/el-get")
+
+;; Use-package initialisation but this is for non-linux platforms....
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+
+(require 'use-package)
+
+; Makes sure that it installs the package automatically if it isn't already
+(setq use-package-always-ensure t)
+
+(unless (require 'el-get nil t)
+  (url-retrieve
+   "https://raw.github.com/dimitri/el-get/master/el-get-install.el"
+   (lambda (s)
+     (end-of-buffer)
+     (eval-print-last-sexp))))
+#+end_src
+
+
+* Custom set variables
+
+#+begin_src
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ansi-color-names-vector
+   ["#242424" "#e5786d" "#95e454" "#cae682" "#8ac6f2" "#333366" "#ccaa8f" "#f6f3e8"])
+ '(async-shell-command-buffer 'new-buffer)
+ '(custom-enabled-themes '(spacemacs-dark))
+ '(custom-safe-themes
+   '("7b3d184d2955990e4df1162aeff6bfb4e1c3e822368f0359e15e2974235d9fa8" "c83c095dd01cde64b631fb0fe5980587deec3834dc55144a6e78ff91ebc80b19" "730a87ed3dc2bf318f3ea3626ce21fb054cd3a1471dcd59c81a4071df02cb601" "2c49d6ac8c0bf19648c9d2eabec9b246d46cb94d83713eaae4f26b49a8183fc4" "0a41da554c41c9169bdaba5745468608706c9046231bbbc0d155af1a12f32271" "7a994c16aa550678846e82edc8c9d6a7d39cc6564baaaacc305a3fdc0bd8725f" "b5fff23b86b3fd2dd2cc86aa3b27ee91513adaefeaa75adc8af35a45ffb6c499" "4bca89c1004e24981c840d3a32755bf859a6910c65b829d9441814000cf6c3d0" "f2927d7d87e8207fa9a0a003c0f222d45c948845de162c885bf6ad2a255babfd" "e3c64e88fec56f86b49dcdc5a831e96782baf14b09397d4057156b17062a8848" "6b80b5b0762a814c62ce858e9d72745a05dd5fc66f821a1c5023b4f2a76bc910" "aaa4c36ce00e572784d424554dcc9641c82d1155370770e231e10c649b59a074" "c086fe46209696a2d01752c0216ed72fd6faeabaaaa40db9fc1518abebaf700d" "56d10d2b60685d112dd54f4ba68a173c102eacc2a6048d417998249085383da1" "e6ff132edb1bfa0645e2ba032c44ce94a3bd3c15e3929cdf6c049802cf059a2a" "76bfa9318742342233d8b0b42e824130b3a50dcc732866ff8e47366aed69de11" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default))
+ '(default-input-method "iast-postfix")
+ '(dired-icon-image-size 8)
+ '(doc-view-continuous t)
+ '(elfeed-feeds
+   '("https://www.theguardian.com/help/feeds"))
+ '(emms-volume-amixer-card 1)
+ '(fancy-splash-image "/home/michael/arch.jpg")
+ '(fci-rule-color "#65737E")
+ '(inhibit-startup-buffer-menu t)
+ '(jdee-db-active-breakpoint-face-colors (cons "#1B2229" "#D08770"))
+ '(jdee-db-requested-breakpoint-face-colors (cons "#1B2229" "#A3BE8C"))
+ '(jdee-db-spec-breakpoint-face-colors (cons "#1B2229" "#4f5b66"))
+ '(line-number-mode nil)
+ '(objed-cursor-color "#BF616A")
+ '(org-agenda-files
+   '("/home/michael/Dropbox/3_Emacs/1_Org_Files/2_Todo_Notes.org" "/home/michael/Dropbox/3_Emacs/1_Org_Files/1_Appointments.org" "/home/michael/Dropbox/1_Work/0_1_Vienna\ Work/0_Notes/20211007100420-1_project_admin.org"))
+ '(org-babel-python-command "python3")
+ '(org-babel-python-mode 'python3)
+ '(org-icalendar-timezone "Europe/Vienna")
+ '(org-src-preserve-indentation t)
+ '(org-startup-folded t)
+ '(package-selected-packages
+   '(dired-sidebar neotree pythonic org-gcal expand-region buffer-expose dashboard noxml-fold auto-complete-nxml helm-descbinds alarm-clock guix dired-icon geiser deadgrep vlf markdown-mode ox-pandoc general all-the-icons doom-themes helpful counsel ivy-rich which-key rainbow-delimiters rainbow-delimeters doom-modeline ivy ido-vertical-mode smex bibtex-completion command-log-mode podcaster ob-translate elfeed god-mode resize-window calfw-org google-maps persistent-soft ergoemacs-mode pdf-tools helm-exwm dmenu use-package start-menu bluetooth projectile w3m exwm lua-mode slime elpher emms org-babel-eval-in-repl circe wc-mode ztree sorcery-theme sudo-edit spaces spacemacs-theme auctex beacon org-brain org-tree-slide aproject anaconda-mode helm-bibtex bibtex-utils emacsql-mysql edbi wanderlust wiki-summary elpy ein ebib jabber metaweblog xml-rpc org2blog academic-phrases evil))
+ '(podcaster-feeds-urls
+   '("https://ipn.li/kernelpanic/feed" "http://sachachua.com/blog/tag/emacs-chat/podcast" "http://hopwag2.podbean.com/feed/"))
+ '(quail-keyboard-layout
+   "                              `\2541!2\"3\2434$5%6^7&8*9(0)-_=+      qQwWeErRtTyYuUiIoOpP[{]}      aAsSdDfFgGhHjJkKlL;:'@#~    \\|zZxXcCvVbBnNmM,<.>/?                                      ")
+ '(quail-keyboard-layout-type "pc105-uk")
+ '(rustic-ansi-faces
+   ["#2b303b" "#BF616A" "#A3BE8C" "#ECBE7B" "#8FA1B3" "#c678dd" "#46D9FF" "#c0c5ce"])
+ '(unicode-fonts-block-font-mapping
+   '(("Devanagari"
+      ("Sanskrit 2003"))
+     ("Emoticons"
+      ("Apple Color Emoji" "Symbola" "Quivira"))))
+ '(vc-annotate-background "#2b303b")
+ '(vc-annotate-color-map
+   (list
+    (cons 20 "#A3BE8C")
+    (cons 40 "#bbbe86")
+    (cons 60 "#d3be80")
+    (cons 80 "#ECBE7B")
+    (cons 100 "#e2ab77")
+    (cons 120 "#d99973")
+    (cons 140 "#D08770")
+    (cons 160 "#cc8294")
+    (cons 180 "#c97db8")
+    (cons 200 "#c678dd")
+    (cons 220 "#c370b6")
+    (cons 240 "#c16890")
+    (cons 260 "#BF616A")
+    (cons 280 "#a35f69")
+    (cons 300 "#875e68")
+    (cons 320 "#6b5c67")
+    (cons 340 "#65737E")
+    (cons 360 "#65737E")))
+ '(vc-annotate-very-old-color nil))
+#+end_src
+
+
+* Smex
+
+M-x enhancement, built on top of Ido.
+
+#+begin_src emacs-lisp
+(use-package smex
+  :bind (("M-x" . smex)))
+#+end_src
+
+
+
+* Python ELPY
+
+#+begin_src emacs-lisp
+(use-package elpy
+  :ensure t
+  :defer t
+  :init
+  (advice-add 'python-mode :before 'elpy-enable))
+
+(setq python-shell-interpreter "ipython"
+      python-shell-interpreter-args "-i --simple-prompt")
+
+(setq elpy-rpc-virtualenv-path 'current)
+
+(use-package code-cells
+  :ensure t)
+
+(defun python/scratch ()
+  (interactive)
+    (let (
+          ;; Creates a new buffer object.
+         (buf (get-buffer-create "*python-scratch*"))
+         )
+      ;; Executes functions that would change the current buffer at
+      ;; buffer buf
+     (with-current-buffer buf
+       ;;; Set the new buffer to scratch mode
+       (python-mode)
+       ;;; Pop to scratch buffer
+       (pop-to-buffer buf)
+       )))
+#+end_src
+
+
+* Org-mode
+
+#+begin_src emacs-lisp
+(setq org-startup-folded t)
+(setq org-icalendar-timezone "Europe/Vienna")
+(setq org-agenda-span 28)
+
+(defun oa ()
+  (interactive)
+  (delete-other-windows)
+  (split-window-below)
+  (find-file "/home/michael/Dropbox/3_Emacs/1_Org_Files/1_Appointments.org")
+  (other-window 1)
+  (find-file "/home/michael/Dropbox/3_Emacs/1_Org_Files/2_Todo_Notes.org"))
+
+(add-hook 'org-mode-hook (lambda () (setq electric-indent-mode nil)))
+
+;(use-package org-tree-slide
+;  :custom
+;  (org-image-actual-width nil))
+
+;(org-babel-do-load-languages
+; 'org-babel-load-languages
+; '((python . t)))
+
+(defvar org-electric-pairs '((?\* . ?\*) (?/ . ?/)
+                             (?\_ . ?\_)) "Electric pairs for org-mode.")
+
+(defun org-add-electric-pairs ()
+  (setq-local electric-pair-pairs (append electric-pair-pairs org-electric-pairs))
+  (setq-local electric-pair-text-pairs electric-pair-pairs))
+
+;(add-hook 'org-mode-hook 'org-add-electric-pairs)
+(add-hook 'org-mode-hook 'toggle-truncate-lines)
+
+(defun mike/org-sort-renumber-footnotes ()
+  "Sort and renumber all footnotes in an org buffer."
+  (interactive)
+  (org-footnote-sort)
+  (org-footnote-renumber-fn:N))
+
+(defun dots ()
+  (interactive)
+  (insert "…"))
+
+;(use-package ox-pandoc)
+;(require 'ox-pandoc)
+
+'(indent-tabs-mode nil)
+(setq org-confirm-babel-evaluate nil)
+#+end_src
+
+
+
+* Org-roam
+
+Variable *org-roam-v2-ack* suppresses warnings: When set to t, won’t display the annoying warning message about the upgrade. Need to be set before the package is loaded, otherwise won’t take any affect.
+
+org-roam-db-autosync mode is necessary to ensure that the db is synced. It didn't work on Linux mint for some reason.
+
+#+begin_src emacs-lisp
+(setq org-roam-v2-ack t)
+(use-package org-roam)
+(setq org-roam-directory (file-truename "/home/michael/Dropbox/1_Work/0_1_Vienna Work/0_Notes/"))
+
+(org-roam-db-autosync-mode)
+
+(setq org-default-notes-file "/home/michael/Dropbox/1_Work/0_1_Vienna Work/1_Sanskrit_Notes.org")
+#+end_src
+
+
+* Org-ref
+  
+#+begin_src emacs-lisp
+(setq reftex-default-bibliography '("/home/michael/Dropbox/1_MAIN_BIB.bib"))
+
+(use-package org-ref
+  :ensure t
+  :config
+  (setq reftex-default-bibliography '("/home/michael/Dropbox/7_Bibliography/1_MASTER.bib")))
+
+
+(setq bibtex-completion-bibliography '("/home/michael/Dropbox/7_Bibliography/1_MASTER.bib"
+					 "/home/michael/Dropbox/1_Work/0_1_Vienna Work/7_Bibliography/1_MASTER.bib"
+					 "/home/michael/Dropbox/1_Work/0_1_Vienna Work/7_Bibliography/1_MASTER.bib"
+					 "/home/michael/Dropbox/1_Work/0_1_Vienna Work/7_Bibliography/1_MASTER.bib")
+	bibtex-completion-library-path '("~/Dropbox/emacs/bibliography/bibtex-pdfs/")
+	bibtex-completion-notes-path "~/Dropbox/emacs/bibliography/notes/"
+	bibtex-completion-notes-template-multiple-files "* ${author-or-editor}, ${title}, ${journal}, (${year}) :${=type=}: \n\nSee [[cite:&${=key=}]]\n"
+
+	bibtex-completion-additional-search-fields '(keywords)
+	bibtex-completion-display-formats
+	'((article       . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${journal:40}")
+	  (inbook        . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
+	  (incollection  . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+	  (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+	  (t             . "${=has-pdf=:1}${=has-note=:1} ${year:4} ${author:36} ${title:*}"))
+	bibtex-completion-pdf-open-function
+	(lambda (fpath)
+	  (call-process "open" nil 0 nil fpath)))
+ 
+;(require 'org-ref-ivy)
+(global-set-key (kbd "C-M-=") 'org-ref-insert-link)
+(global-set-key (kbd "C-M-#") 'org-footnote-action)
+;(global-set-key (kbd "C-z") 'undo)
+
+(defun biblify ()
+  (interactive)
+  (insert "#+csl-style: apa-5th-edition.csl
+bibliographystyle:unsrt
+bibliography:/home/michael/Dropbox/7_Bibliography/1_MASTER.bib"))
+
+(global-set-key (kbd "C-c l") 'org-ref-bibtex-hydra/body)
+
+#+end_src
+
+
+
+* Hydra
+
+#+begin_src emacs-lisp
+(use-package hydra
+  :ensure t)
+
+(global-set-key (kbd "C-c 9") 'hydra-navigation/body)
+(global-set-key (kbd "C-c 7") 'hydra-org-roam/body)
+(global-set-key (kbd "C-c 8") 'org-agenda)
+
+(setq org-agenda-window-setup 'only-window)
+
+(defhydra hydra-navigation ()
+  "navigating hydra"
+  ("f"   (dired "/home/michael/Dropbox/1_Work/0_1_Vienna Work") "files")
+  ("e"   (dired "/home/michael/Dropbox/3_Emacs") "emacs")
+  ("d"   (dired "/home/michael/Desktop") "desktop")
+  ("b"   (dired "/home/michael/Dropbox/1_Work/0_1_Vienna Work/2_Book/1_A_Final_Leg/1_Cynthia") "book")
+  ("m"   (find-file "/home/michael/Dropbox/3_Emacs/Common/new_settings.org") "new_settings.org")
+  ("o"   (find-file "/home/michael/Dropbox/3_Emacs/1_Org_Files/1_Appointments.org") "org")
+  ("r"   (dired "/home/michael/Dropbox/") "dropbox")
+  ("B"   (dired "/home/michael/Dropbox/7_Bibliography/") "Biblio")
+  ("c"   (dired "/home/michael/Dropbox/MAIN_CV") "CV")
+  ("p"   (dired "/home/michael/Dropbox/Python") "python")
+  ("n"   (dired "/home/michael/Dropbox/1_Work/0_1_Vienna Work/0_Notes") "Notes")
+  ("c"   (dired "/home/michael/Dropbox/1_Work/0_Corpus") "Corpus")
+  ("s"   (find-file "/home/michael/Dropbox/Python/Practice/snippets.py") "Snippets")
+  ("i"   (dired "/home/michael/Documents/Interview") "Interview")
+  ("t"   (dired "/home/michael/Dropbox/1_Work/0_1_Vienna Work/1_Chapters/1_Translation") "Translation"))
+
+(defhydra hydra-org-roam ()
+  "Sanskrit Hydra"
+  ("f" (find-name-dired) "search-dropbox")
+  ("s" (search-corpus) "search-corpus"))
+#+end_src
+
+
+
+* My Keys Minor mode
+
+#+begin_src emacs-lisp
+(defvar my-keys-minor-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-o") 'next-line)
+    (define-key map (kbd "C-j") 'backward-word)
+    (define-key map (kbd "M-n") 'forward-paragraph)
+    ;(define-key map (kbd "C-n") 'open-line)
+    map)
+  "my-keys-minor-mode keymap.")
+
+(define-minor-mode my-keys-minor-mode
+  "A minor mode so that my key settings override annoying major modes."
+  :init-value t
+  :lighter "my-keys")
+
+(my-keys-minor-mode 1)
+#+end_src
+
+
+* IDO
+
+Ido-mode enhances emacs switch buffer command and opening file command. It automatically show list of choices as you type (no need to press Tab first).
+
+#+begin_src emacs-lisp
+(use-package ido-vertical-mode)
+(ido-mode 1)
+(ido-vertical-mode 1)
+(setq ido-vertical-define-keys 'C-n-and-C-p-only)
+#+end_src
+
+
+
+* Counsel
+
+** Counsel Web Search
+
+#+begin_src emcas-lisp
+(use-package counsel-web)
+#+end_src
+
+
+
+* EXWM Settings
+  
+#+begin_src emacs-lisp
+(quail-set-keyboard-layout "pc105-uk")
+(quail-update-keyboard-layout "pc105-uk")
+(setq quail-keyboard-layout-type "pc105-uk")
+
+; These lines are to stop that annoying *Async Shell Command* window from opening.
+(defadvice async-shell-command (around hide-async-windows activate)
+  (save-window-excursion
+    ad-do-it))
+
+;; Interface settings
+;; Necessary so you can switch to an EXWM supported program in a different workspace.
+(setq exwm-layout-show-all-buffers t)
+
+(use-package helm-exwm
+  :ensure t
+  :config
+  (setq helm-exwm-emacs-buffers-source (helm-exwm-build-emacs-buffers-source))
+  (setq helm-exwm-source (helm-exwm-build-source))
+  (setq helm-mini-default-sources `(helm-exwm-emacs-buffers-source
+                                    helm-exwm-source
+                                    helm-source-recentf)))
+
+(defun helm-exwm-switch-to-previous-buffer ()
+  (interactive)
+  (setq a (car (last (helm-exwm-candidates))))
+  (switch-to-buffer a))
+
+(defun helm-exwm-switch-to-next-buffer ()
+  (interactive)
+  (if (> (length (helm-exwm-candidates)) 2)
+      (let ()
+	(setq a (first (cdr (helm-exwm-candidates))))
+	(switch-to-buffer a))
+    (let ()
+      (setq a (first (cdr (helm-exwm-candidates))))
+      (switch-to-buffer a))))
+
+;; Make it easier to run dmenu
+(use-package dmenu)
+
+(defun run-dmenu ()
+  (interactive)
+  (shell-command "dmenu_run"))
+
+(global-set-key (kbd "C-c C-d") 'run-dmenu)
+
+(require 'itrans-sa)
+
+(defun switch-trans-dev ()
+  "Switches to transliteration if in devanagari and vice versa."
+  (interactive)
+  (if (equal current-input-method "iast-postfix")
+      (set-input-method "devanagari-kyoto-harvard")
+    (set-input-method "iast-postfix")))
+
+(global-set-key (kbd "M-p") 'backward-paragraph)
+(global-set-key (kbd "C-~") 'other-window)
+(global-set-key (kbd "M-e") 'helm-exwm)
+
+(defun print-entire-bibtex ()
+  (interactive)
+  (async-shell-command "python3 /home/michael/Dropbox/Python/1_Bib_Manager/Final/final.py > /home/michael/Dropbox/Python/1_Bib_Manager/Final/Current_Entries_Text.org\n")
+  (dired "/home/michael/Dropbox/Python/1_Bib_Manager/Final/"))
+
+;; Use define-mode-abbrev to enter new abbreviations for org mode
+
+(setq abbrev-mode t)
+(setq org-src-preserve-indentation t)
+
+(defun mike/insert-org-headers ()
+  """Insert the headers you would normally use to publish a document in Latex/ODT."""
+  (interactive)
+  (insert "#+TITLE: 
+,#+SUBTITLE: 
+,#+AUTHOR: 
+,#+LATEX_CLASS: 
+,#+LATEX_CLASS_OPTIONS: [letterpaper]
+,#+OPTIONS: toc:nil"))
+
+(global-hl-line-mode)
+ 
+;; Stuff for TEI critical editing
+
+(defun tei/highlight-next-apparatus-entry ()
+  (interactive)
+  (search-backward "\"")
+  (forward-char)
+  (set-mark-command nil)
+  (search-forward "\"")
+  (backward-char)
+  (copy-region-as-kill (region-beginning) (region-end))
+  (switch-to-buffer "apparatus.xml")
+  (unhighlight-regexp t)
+  (highlight-lines-matching-regexp (car kill-ring) 'hi-yellow)
+  (switch-to-buffer "output.xml"))
+
+(defun open-thunar ()
+  (interactive)
+  (async-shell-command (concat "thunar " (s-replace " " "\\ " default-directory))))
+
+(require 'exwm-systemtray)
+(exwm-systemtray-enable)
+; Need to set height, otherwise tray won't always appear
+(setq exwm-systemtray-height 24)
+
+(display-time-mode 1)
+(display-battery-mode 1)
+
+; Startup applications
+;(call-process-shell-command "blueman-manager" nil 0)
+(call-process-shell-command "/opt/dropbox/dropboxd" nil 0)
+;(start-process "dropboxd" "new_buffer" "/opt/dropbox/dropboxd")
+
+; These should enable the clipboard
+(setq x-select-enable-clipboard t)
+(setq interprogram-paste-function 'x-cut-buffer-or-selection-value)
+
+; EXWM Settings
+
+(defun exwm-logout ()
+  (interactive)
+  (recentf-save-list)
+  (save-some-buffers)
+  (start-process-shell-command "logout" nil "lxsession-logout"))
+
+(require 'exwm)
+(require 'exwm-config)
+(exwm-config-default)
+(set-frame-parameter nil 'fullscreen 'fullboth)
+
+;; These keys should always pass through to Emacs
+(setq exwm-input-prefix-keys
+      '(?\C-x
+	?\C-u
+	?\C-h
+	?\M-x
+	?\M-`
+	?\M-&
+	?\M-:
+	?\C-\M-j
+	?\C-o
+	?\C-\s-j
+	?\C-\s-l
+	?\C-\ ))
+
+; Global-EXWM key bindgs
+(setq exwm-input-global-keys
+      `(([?\s-r] . exwm-reset)
+	(,(kbd "s-n") . helm-exwm-switch-to-next-buffer)
+	(,(kbd "s-q") . delete-window)
+	(,(kbd "s-Q") . delete-other-windows)
+	(,(kbd "s-a") . dmenu)
+	(,(kbd "s-y") . intra)
+	(,(kbd "s-d") . ido-dired)
+	(,(kbd "s-f") . open-thunar)
+	(,(kbd "s-m") . open-scratch-bottom)
+	(,(kbd "s-t") . shell)
+	(,(kbd "s-p"). helm-exwm)
+	(,(kbd "<s-tab>") . helm-exwm)
+	(,(kbd "<s-q>") . helm-exwm)
+	(,(kbd "s-k") . windmove-up)
+	(,(kbd "s-j") . windmove-down)
+	(,(kbd "s-h") . windmove-left)
+	(,(kbd "s-l") . windmove-right)
+	(,(kbd "s-s") . resize-window)
+	(,(kbd "s-o") . org-roam-node-find)
+	(,(kbd "s-H") . windmove-swap-states-left)
+	(,(kbd "s-J") . windmove-swap-states-down)
+	(,(kbd "s-K") . windmove-swap-states-up)
+	(,(kbd "s-L") . windmove-swap-states-right)		
+	(,(kbd "C-s-l") . split-window-horizontally)
+	(,(kbd "C-s-j") . split-window-vertically)
+	(,(kbd "s-i") . split-window-horizontally)
+	(,(kbd "s-u") . split-window-vertically)
+        (,(kbd "<s-f2>") . emms-volume-mode-minus)
+	(,(kbd "<s-f3>") . emms-volume-mode-plus)
+        (,(kbd "<XF86AudioRaiseVolume>") . emms-volume-mode-plus)
+        (,(kbd "<XF86AudioLowerVolume>") . emms-volume-mode-minus)	
+        ([?\s-w] . exwm-workspace-switch)
+        ,@(mapcar (lambda (i)
+                    `(,(kbd (format "s-%d" i)) .
+                      (lambda ()
+                        (interactive)
+                        (exwm-workspace-switch-create ,i))))
+                  (number-sequence 0 9))))
+#+end_src
+
+
+
+* Deadgrep
+  
+The deadgrep-max-buffers needs to be set to one since otherwise deadgrep comes to a halt
+
+#+begin_src emacs-lisp
+(use-package deadgrep)
+(setq deadgrep-max-buffers 1)
+
+(defun search-corpus ()
+  "Search through the Sanskrit text corpus using deadgrep."
+  (interactive)
+  (setq search-term (read-from-minibuffer "Sanskrit text: "))
+  (dired "/home/michael/Dropbox/1_Work/0_Corpus")
+  (deadgrep search-term))
+#+end_src
+
+
+
+* Dired Stuff
+
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-x C-j") 'dired/open-current-directory)
+
+(use-package all-the-icons-dired)
+
+(defun dired/open-current-directory ()
+  (interactive)
+  (dired default-directory))
+
+;(add-hook 'dired-mode-hook (lambda () (dired-icon-mode)))
+#+end_src
+
+
+
+* Python
+
+#+begin_src emacs-lisp
+;; Tool selection may be jedi, or anaconda-mode. This script settle it
+;; down with anaconda-mode.
+(use-package company
+ :ensure t
+ :config
+ (setq company-idle-delay 0
+       company-minimum-prefix-length 2
+       company-show-numbers t
+       company-tooltip-limit 10
+       company-tooltip-align-annotations t
+       ;; invert the navigation direction if the the completion popup-isearch-match
+       ;; is displayed on top (happens near the bottom of windows)
+       company-tooltip-flip-when-above t))
+
+(use-package anaconda-mode
+  :ensure t
+  :config
+  (add-hook 'python-mode-hook 'anaconda-mode)
+  (add-hook 'python-mode-hook 'anaconda-eldoc-mode))
+
+(use-package company-anaconda
+  :ensure t
+  :init (require 'rx)
+  :after (company)
+  :config
+  (add-to-list 'company-backends 'company-anaconda))
+
+(use-package company-quickhelp
+  ;; Quickhelp may incorrectly place tooltip towards end of buffer
+  ;; See: https://github.com/expez/company-quickhelp/issues/72
+  :ensure t)
+
+;(add-to-list 'python-shell-extra-pythonpaths "/home/michael/Documents/Interview")
+#+end_src
+
+
+
+* Mail
+
+#+begin_src emacs-lisp
+(setq user-mail-address	"michael.williams@oeaw.ac.at"
+      user-full-name	"Michael Thomas Williams")
+
+(setq gnus-select-method '(nnimap "Inbox"
+                                  (nnimap-address "exchange.oeaw.ac.at")
+                                  (nnimap-server-port 993)
+                                  (nnimap-stream tls)))
+
+;(setq send-mail-function		'smtpmail-send-it
+;      message-send-mail-function	'smtpmail-send-it
+;      smtpmail-smtp-server		"exchange.oeaw.ac.at")
+
+
+(setq smtpmail-smtp-server "smtp.gmail.com"
+      smtpmail-smtp-service 587
+      gnus-ignored-newsgroups "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\"]\"[#'()]")
+#+end_src
+
+
+
+* God Mode and motion commands
+
+#+begin_src emacs-lisp
+;;; God mode stuff
+
+(use-package god-mode)
+
+(defun my-god-mode-update-cursor ()
+  (setq cursor-type (if (or god-local-mode buffer-read-only)
+                        'box
+                      'bar)))
+
+(add-hook 'god-mode-enabled-hook #'my-god-mode-update-cursor)
+(add-hook 'god-mode-disabled-hook #'my-god-mode-update-cursor)
+
+;(global-set-key (kbd "<escape>") #'god-local-mode)
+
+; Set to t if you want to retain the transliteration, nil if you just want to have no input method
+(setq block-input-toggle nil)
+
+(defun iast-mode ()
+  "Switches input toggle when activating god mode on/off."
+  (interactive)
+  (if (equal block-input-toggle nil)
+      (setq block-input-toggle t)
+    (setq block-input-toggle nil)))
+
+(defun me/switch-input-method ()
+  (interactive)
+  (if (or (string= current-input-method "iast-postfix") (string= current-input-method "devanagari-kyoto-harvard"))
+      (toggle-input-method)))
+
+(setq old-input-method nil)
+
+(defun mike/god-mode-on-switch-im ()
+  (interactive)
+  (setq old-input-method current-input-method-title)
+  (deactivate-input-method))
+
+(defun mike/god-mode-off-switch-im ()
+  (interactive)
+  (if (string= old-input-method "InR<")
+      (set-input-method "iast-postfix"))
+  (if (string= old-input-method "DevKH")
+      (set-input-method "devanagari-kyoto-harvard")))
+
+;(add-hook 'god-mode-enabled-hook #'me/switch-input-method)
+;(add-hook 'god-mode-disabled-hook #'toggle-input-method)
+;(add-hook 'god-mode-disabled-hook (lambda () (if (equal block-input-toggle nil)
+;	       (toggle-input-method))))
+
+(add-hook 'god-mode-enabled-hook #'mike/god-mode-on-switch-im)
+(add-hook 'god-mode-disabled-hook #'mike/god-mode-off-switch-im)
+
+(shell-command "setxkbmap -layout gb")
+(shell-command "xmodmap /home/michael/modmap")
+
+(god-mode)
+
+(define-key god-local-mode-map (kbd ".") #'repeat)
+(define-key god-local-mode-map (kbd "i") #'god-local-mode)
+(define-key god-local-mode-map (kbd "z") #'repeat)
+;(shell-command "/home/michael/footremap.sh")
+
+(defun write-file-copy (filename)
+  (interactive "F")
+  (write-region (point-min) (point-max) filename))
+
+
+(define-key god-local-mode-map (kbd "C-S-A") 'cn)
+(define-key god-local-mode-map (kbd "C-S-Q") 'cs)
+
+(defun mark-whole-word (&optional arg allow-extend)
+  "Like `mark-word', but selects whole words and skips over whitespace.
+If you use a negative prefix arg then select words backward.
+Otherwise select them forward.
+
+If cursor starts in the middle of word then select that whole word.
+
+If there is whitespace between the initial cursor position and the
+first word (in the selection direction), it is skipped (not selected).
+
+If the command is repeated or the mark is active, select the next NUM
+words, where NUM is the numeric prefix argument.  (Negative NUM
+selects backward.)"
+  (interactive "P\np")
+  (let ((num  (prefix-numeric-value arg)))
+    (unless (eq last-command this-command)
+      (if (natnump num)
+          (skip-syntax-forward "\\s-")
+        (skip-syntax-backward "\\s-")))
+    (unless (or (eq last-command this-command)
+                (if (natnump num)
+                    (looking-at "\\b")
+                  (looking-back "\\b")))
+      (if (natnump num)
+          (left-word)
+        (right-word)))
+    (mark-word arg allow-extend)))
+
+(defun italicise-word ()
+  (interactive)
+  (save-excursion
+    (goto-char (region-beginning))
+    (insert "/"))
+  (goto-char (region-end))
+  (insert "/"))
+
+(defun boldify-word ()
+  (interactive)
+  (save-excursion
+    (goto-char (region-beginning))
+    (insert "*"))
+  (goto-char (region-end))
+  (insert "*"))
+
+(defun editing/delete-next-quotations ()
+  (interactive)
+  (search-forward "\"")
+  (set-mark-command nil)
+  (search-forward "\"")
+  (backward-char)
+  (kill-region (region-beginning) (region-end)))
+
+(define-key god-local-mode-map (kbd "C-S-E") 'italicise-word)
+(define-key god-local-mode-map (kbd "C-S-F") 'forward-word)
+(define-key god-local-mode-map (kbd "C-S-B") 'backward-word)
+(define-key god-local-mode-map (kbd "C-S-S") 'mike/superscript)
+(define-key god-local-mode-map (kbd "C-\"") 'editing/delete-next-quotations)
+
+;(set-fringe-mode 10)
+
+(defun insert-danda ()
+  (interactive)
+  (insert "|"))
+
+(global-set-key "¬" 'insert-danda)
+
+;(async-shell-command "tint2")
+;(async-shell-command "nm-applet")
+;(global-set-key (kbd "M-n") 'forward-word)
+
+;; This just makes sure that C-o is always bound to next-line
+
+(defvar my-keys-minor-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-o") 'next-line)
+    (define-key map (kbd "C-j") 'next-word)
+    ;(define-key map (kbd "C-n") 'open-line)
+    map)
+  "my-keys-minor-mode keymap.")
+
+(define-minor-mode my-keys-minor-mode
+  "A minor mode so that my key settings override annoying major modes."
+  :init-value t
+  :lighter " my-keys")
+
+(my-keys-minor-mode 1)
+#+end_src
+
+
+* Input Methods
+
+#+begin_src emacs-lisp
+(defun org-superscript (start end)
+  (interactive "r")
+  (save-excursion)
+  (goto-char end) (insert "}")
+  (goto-char start) (insert "^{"))
+
+(defun show-file-name ()
+  "Show the full path file name in the minibuffer."
+  (interactive)
+  (message (buffer-file-name))
+  (insert buffer-file-name)
+  (kill-new (file-truename buffer-file-name)))
+
+(defun angular ()
+  "Insert some angular brackets"
+  (interactive)
+  (insert "⟨⟩")
+  (backward-char 1))
+
+(defun indev ()
+  (interactive)
+  (set-input-method "devanagari-kyoto-harvard"))
+
+(defun intra ()
+  (interactive)
+  (set-input-method "iast-postfix"))
+
+(defun inger ()
+  (interactive)
+  (set-input-method "german"))
+
+(defun dots ()
+  (interactive)
+  (insert "…"))
+
+(global-set-key (kbd "↓") (lambda () (interactive) (insert "ü")))
+(global-set-key (kbd "ø") (lambda () (interactive) (insert "ö")))
+(global-set-key (kbd "æ") (lambda () (interactive) (insert "ä")))
+(global-set-key (kbd "Æ") (lambda () (interactive) (insert "Ä")))
+(global-set-key (kbd "Ø") (lambda () (interactive) (insert "Ö")))
+(global-set-key (kbd "↑") (lambda () (interactive) (insert "Ü")))
+#+end_src
+
+
+* Sanskrit Helpers
+
+#+begin_src emacs-lisp
+(defun transliterate-iast (text)
+  (interactive)
+  (insert (shell-command-to-string (concat "python /home/michael/Dropbox/Python/convert_to_dev.py " text))))
+
+(defun nxml-where ()
+  "Display the hierarchy of XML elements the point is on as a path."
+  (interactive)
+  (let ((path nil))
+    (save-excursion
+      (save-restriction
+	(widen)
+	(while (and (< (point-min) (point)) ;; Doesn't error if point is at beginning of buffer
+		    (condition-case nil
+			(progn
+			  (nxml-backward-up-element) ; always returns nil
+			  t)
+		      (error nil)))
+	  (setq path (cons (xmltok-start-tag-local-name) path)))
+	(if (called-interactively-p t)
+	    (message "/%s" (mapconcat 'identity path "/"))
+	  (format "/%s" (mapconcat 'identity path "/")))))))
+
+(defun cs ()
+  "This helps to make a new bibliography from the main ones. Just select the entry you want to put into the new bibliography, and it's copied over to the buffer new.bib. This can then be saved to a file and processed with a script."
+  (interactive)
+  (bibtex-mark-entry)
+  (kill-ring-save (region-beginning) (region-end))
+  (get-buffer-create "new_sanskrit.bib")
+  (with-current-buffer "new_sanskrit.bib" (insert "\n\n\n"))
+  (with-current-buffer "new_sanskrit.bib" (insert (car kill-ring))))
+
+(defun cn ()
+  "This helps to make a new bibliography from the main ones. Just select the entry you want to put into the new bibliography, and it's copied over to the buffer new.bib. This can then be saved to a file and processed with a script."
+  (interactive)
+  (bibtex-mark-entry)
+  (kill-ring-save (region-beginning) (region-end))
+  (get-buffer-create "new_normal.bib")
+  (with-current-buffer "new_normal.bib" (insert "\n\n\n"))
+  (with-current-buffer "new_normal.bib" (insert (car kill-ring))))
+#+end_src
+
+
+* Ivy Package Setup
+
+Ivy package - interactive interface for completion in emacs. Consider installing counsel for more. This was lifted from: https://github.com/daviwil/emacs-from-scratch/blob/3075158cae210060888001c0d76a58a4178f6a00/init.el. But I got rid of his ridiculous vim key bindings.
+
+#+begin_src emacs-lisp
+(use-package ivy :demand
+  ;; diminish ensures that the minor mode doesn't show on the modeline
+  :diminish
+  :config
+  (setq ivy-use-virtual-buffers t
+	ivy-count-format "%d/%d ")
+  (ivy-mode 1))
+#+end_src
+
+
+* Swiper setup
+
+#+begin_src emacs-lisp
+(use-package swiper)
+(global-set-key (kbd "C-s") 'swiper)
+(global-set-key (kbd "C-r") 'swiper-isearch-backward)
+(setq ivy-display-style 'fancy)
+#+end_src
+
+
+* Org-Mode Auto-Tangle
+
+This is lifted from David Willis's configuration file (https://github.com/daviwil/emacs-from-scratch/blob/9388cf6ecd9b44c430867a5c3dad5f050fdc0ee1/Emacs.org).
+It ensures every time you save this very file, it gets tangled with the main config file.
+  
+#+begin_src emacs-lisp
+;; Automatically tangle our Emacs.org config file when we save it
+(defun efs/org-babel-tangle-config ()
+  (when (string-equal (buffer-file-name)
+                      (expand-file-name "~/Dropbox/3_Emacs/Common/main_config.org"))
+    ;; Dynamic scoping to the rescue
+    (let ((org-confirm-babel-evaluate nil))
+      (org-babel-tangle))))
+
+(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+#+end_src
+
+
+
+* Unicode fonts
+
+#+begin_src emacs-lisp
+;(use-package unicode-fonts)
+#+end_src
+
+
+* Other Packages
+
+** EMMS
+
+#+begin_src emacs-lisp
+(use-package emms)
+
+(defun vol ()
+  (interactive)
+  (async-shell-command "pavucontrol --tab=3"))
+
+(global-set-key (kbd "<s-f1>") 'emms-volume-mode-minus)
+(global-set-key (kbd "<s-f2>") 'emms-volume-mode-plus)
+#+end_src
+
+
+
+** Spacemacs Theme
+
+#+begin_src
+(use-package spacemacs-theme)
+#+end_src
+
+
+** Which-key
+
+#+begin_src emacs-lisp
+(use-package which-key
+  :init (which-key-mode)
+  :diminish which-key-mode
+  :config
+  (setq which-key-idle-delay 0.3))
+
+(use-package expand-region
+  :ensure t
+  :after er/expand-region)
+#+end_src
+
+
+** Neotree
+
+#+begin_src emacs-lisp
+(use-package neotree
+  :ensure t)
+#+end_src
+
+
+** Ediff
+
+#+begin_src emacs-lisp
+(use-package ediff
+  :config (set 'ediff-window-setup-function 'ediff-setup-windows-plain))
+
+(setq ediff-diff-options "--text")
+#+end_src
+
+
+** Popper
+
+#+begin_src emacs-lisp
+(use-package popper
+  :ensure t
+  :bind (("M-`"   . popper-kill-latest-popup)
+         ("C-M-`" . popper-toggle-latest))
+  :init
+  (setq popper-reference-buffers
+        '("\\*Messages\\*"
+          "Output\\*$"
+          help-mode
+          compilation-mode))
+  (popper-mode +1))
+
+(popper-mode 1)
+#+end_src
+
+
+** Dashboard
+
+#+begin_src emacs-lisp
+(use-package dashboard
+  :ensure t
+  :config
+    (dashboard-setup-startup-hook)
+    (setq dashboard-startup-banner "~/Dropbox/3_Emacs/dashLogo.png")
+    (setq dashboard-items '((recents  . 10)
+                            (agenda . 10)))
+    (setq dashboard-banner-logo-title "ARCH-EMACS-EXWM"))
+#+end_src
+
+
+** Org-Bullets
+   
+#+begin_src emacs-lisp
+(add-to-list 'load-path "~/.emacs.d/lisp/")
+;(load "org-bullets.el")
+;(require 'org-bullets)
+(setq org-bullets-bullet-list '("◉" "○" "✸" "✮" "▶"))
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+#+end_src
+
+
+** Arch package Manager
+
+#+begin_src emacs-lisp
+(use-package arch-packer)
+#+end_src
+
+
+** PDF-Tools
+  
+#+begin_src emacs-lisp
+;(use-package pdf-tools)
+#+end_src
+
+
+** Doom-modeline
+
+#+begin_src emacs-lisp
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1)
+  :custom ((doom-modeline-height 12)))
+#+end_src
+
+
+
+** ERC
+
+#+begin_src emacs-lisp
+(use-package erc
+  :ensure t
+  :defer t)
+#+end_src
+
+
+** General
+#+begin_src emacs-lisp
+(use-package general)
+(general-define-key
+ "C-M-j" 'ivy-switch-buffer)
+#+end_src
+
+
+** All-the-icons
+
+For this to work you need to run *all-the-icons-install-fonts* after installing the package!
+
+#+begin_src emacs-lisp
+(use-package all-the-icons)
+#+end_src
+
+
+
+
+
+
+** Treemacs
+
+#+begin_src emacs-lisp
+(use-package treemacs)
+(setq treemacs--width-is-locked nil)
+(setq window-size-fixed nil)
+(treemacs-toggle-fixed-width)
+#+end_src
+
+
+** Elfeed
+
+#+begin_src emacs-lisp
+(use-package elfeed)
+
+(setq elfeed-feeds
+      '("https://archlinux.org/feeds/news/"
+        "https://planet.emacslife.com/atom.xml"
+        "https://www.anarchistfederation.net/"
+        "http://blog.practicalethics.ox.ac.uk/feed/"
+        "http://aphilosopher.drmcl.com/feed/"))
+#+end_src
+
+
+* General Settings
+
+** Kill emacs hook
+
+This needs to be added to avoid logout problems in arch.
+
+#+begin_src emacs-lisp
+(remove-hook 'kill-emacs-hook 'pcache-kill-emacs-hook)
+(global-set-key (kbd "C-c C-r") 'recentf-open-files)
+
+(setq browse-url-browser-function 'browse-url-generic browse-url-generic-program "qutebrowser")
+
+
+#+end_src
+
+
+** Key Bindings
+
+#+begin_src emacs-lisp
+(define-key dired-mode-map [mouse-2] 'dired-mouse-find-file)
+
+(global-set-key (kbd "C-=") 'er/expand-region)
+
+(global-unset-key (kbd "C-t"))
+(push ?\C-t exwm-input-prefix-keys)
+
+(exwm-input-set-key (kbd "C-t v") 'pavucontrol)
+(exwm-input-set-key (kbd "C-t t") 'eshell)
+
+(global-set-key (kbd "C-t f")  'mike/org-sort-renumber-footnotes)
+
+(global-set-key (kbd "C-q") 'forward-word)
+(global-set-key (kbd "C-j") 'backward-word)
+(global-set-key (kbd "M-n") 'forward-paragraph)
+
+(global-set-key (kbd "M-f") 'forward-sentence)
+(global-set-key (kbd "M-b") 'backward-sentence)
+(global-set-key (kbd "s-`") 'helm-exwm)
+
+(defun xmm ()
+  (interactive)
+  (shell-command "setxkbmap -layout gb")
+  (shell-command "xmodmap /home/michael/modmap"))
+
+(defun run-mm ()
+  (interactive)
+  (shell-command "xmodmap /home/michael/modmap"))
+
+(global-set-key (kbd "C-c m") 'xmm)
+
+(defun insert-danda ()
+  (interactive)
+  (insert "|"))
+
+(global-set-key "¬" 'insert-danda)
+
+(defun bull ()
+  (interactive)
+  (insert "•"))
+
+(defun open-scratch-bottom ()
+  (interactive)
+  (split-window-below 37)
+  (other-window 1)
+  (switch-to-buffer "*scratch*")
+  (text-mode))
+
+(global-set-key (kbd "C-c 3") 'open-scratch-bottom)
+(global-set-key (kbd "M-q") 'company-complete)
+
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+(global-set-key (kbd "C-x w") 'counsel-web-search)
+
+;; Preserve the open line functionality
+(global-set-key (kbd "C-M-o") 'open-line)
+
+(global-set-key (kbd "M-[") 'previous-buffer)
+(global-set-key (kbd "M-]") 'next-buffer)
+
+(defun insert-zero-width-space ()
+  (interactive)
+  (insert-char ?\u200B))
+
+(defun buffer/copy-path ()
+  (interactive)
+  (clipboard/set (file-name-directory (buffer-file-name)))
+  (message "Copied file path to clipboard"))
+
+(global-set-key (kbd "C-t b") 'buffer/copy-path)
+
+(defun text/scratch ()
+  (interactive)
+    (let (
+         (buf (get-buffer-create "text-scratch")))
+     (with-current-buffer buf
+       (text-mode)
+       (pop-to-buffer buf))))
+
+#+end_src
+
+
+** Misc Variables
+
+#+begin_src emacs-lisp
+
+;'(org-src-preserve-indentation nil)
+(setq sentence-end-double-space nil)
+(setq show-trailing-whitespace t)
+(setq ring-bell-function 'ignore)
+
+;; Turn on line numbers
+
+(column-number-mode)
+(global-display-line-numbers-mode t)
+
+;; Turn line numbers off for various modes
+
+(dolist (mode '(org-mode-hook
+		term-mode-hook
+		shell-mode-hook
+		eshell-mode-hook
+		eww-mode))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
+;(add-hook 'org-mode-hook (lambda () (god-mode-activate)))
+;(unicode-fonts-setup)
+
+;; For use in converting docx/odt files to org mode using pandoc
+
+'(indent-tabs-mode nil)
+'(org-src-preserve-indentation nil)
+
+(define-key dired-mode-map [mouse-2] 'dired-mouse-find-file)
+
+(setq org-confirm-babel-evaluate nil)
+#+end_src
+
+
+
+
+* Startup Applications
+  
+#+begin_src emacs-lisp
+(call-process-shell-command "blueman-applet" nil 0)
+(call-process-shell-command "dropbox start" nil 0)
+(async-shell-command "nm-applet")
+
+(defun sdropbox ()
+  (interactive)
+  (call-process-shell-command "dropbox start" nil 0))
+#+end_src
+
+#+RESULTS:
+: sdropbox
+
+
+
+* Evil-mode
+
+** Evil mode
+
+#+begin_src emacs-lisp
+(god-mode)
+
+(use-package evil
+  :init
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+  (setq evil-want-C-u-scroll t)
+  (setq evil-want-C-i-jump nil)
+  :config
+  (evil-mode 1)
+  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+
+  ;; Use visual line motions even outside of visual-line-mode buffers
+  (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+  (evil-global-set-key 'motion "m" 'default-indent-new-line)
+
+  (evil-set-initial-state 'messages-buffer-mode 'normal)
+  (evil-set-initial-state 'dashboard-mode 'normal))
+
+(eval-after-load 'evil-core
+  '(evil-set-initial-state 'dashboard-mode 'emacs))
+
+(eval-after-load 'evil-core
+  '(evil-set-initial-state 'eww-mode 'emacs))
+
+(eval-after-load 'evil-core
+  '(evil-set-initial-state 'dired-mode 'emacs))
+
+(define-key evil-normal-state-map (kbd "u") 'undo)
+
+(eval-after-load 'evil-core
+  '(evil-set-initial-state 'shell-mode 'emacs))
+
+(eval-after-load 'evil-core
+  '(evil-set-initial-state 'eshell-mode 'emacs))
+
+(eval-after-load 'evil-core
+  '(evil-set-initial-state 'exwm-mode 'emacs))
+
+(defalias 'evil-insert-state 'evil-emacs-state)
+(setq evil-insert-state-map (make-sparse-keymap))
+
+(define-key evil-normal-state-map (kbd "<escape>") 'evil-emacs-state)
+(define-key evil-normal-state-map (kbd "SPC") 'evil-visual-char)
+(global-set-key (kbd "<escape>") 'evil-normal-state)
+
+(setq evil-emacs-state-cursor '("firebrick" box)) 
+(setq evil-normal-state-cursor '("deep sky blue" box)) 
+(setq evil-visual-state-cursor '("deep sky blue" box))
+(setq evil-insert-state-cursor '("firebrick" box))
+(setq evil-replace-state-cursor '("firebrick" bar))
+(setq evil-operator-state-cursor '("firebrick" hollow))
+
+(use-package evil-surround
+  :ensure t
+  :config
+  (global-evil-surround-mode 1))
+#+end_src
+
+
+* Outserts
+  
+
+This doesn't work at all
+
+Window-divider
+
+This is ignored for the moment. Could be used to create the illusion that there is gaps between the windows
+
+#+begin_src
+(setq window-divider-default-places t)
+(setq window-divider-default-bottom-width 10)
+(setq window-divider-default-right-width 10)
+(window-divider-mode)
+(set-face-background 'vertical-border "white")
+#+end_src
+
+
+#+begin_src
+(use-package eaf
+  :load-path "~/.emacs.d/site-lisp/emacs-application-framework" ; Set to "/usr/share/emacs/site-lisp/eaf" if installed from AUR
+  :custom
+  ; See https://github.com/emacs-eaf/emacs-application-framework/wiki/Customization
+  (eaf-browser-continue-where-left-off t)
+  (eaf-browser-enable-adblocker t)
+  (browse-url-browser-function 'eaf-open-browser)
+  :config
+  (defalias 'browse-web #'eaf-open-browser)
+  (eaf-bind-key scroll_up "C-n" eaf-pdf-viewer-keybinding)
+  (eaf-bind-key scroll_down "C-p" eaf-pdf-viewer-keybinding)
+  (eaf-bind-key take_photo "p" eaf-camera-keybinding)
+  (eaf-bind-key nil "M-q" eaf-browser-keybinding))
+
+(require 'eaf-browser)
+(require 'eaf-pdf-viewer)
+
+;(use-package edwina
+;  :ensure t
+;  :config
+;  (setq display-buffer-base-action '(display-buffer-below-selected))
+;  (edwina-setup-dwm-keys)
+;  (edwina-mode 1))
+
+
+;(use-package workgroups)
+;(workgroups-mode 1)
+;(setq wg-prefix-key (kbd "C-c w"))
+
+;(setq elpy-rpc-backend "jedi")
+
+
+; Org present
+(add-to-list 'load-path "~/Dropbox/3_Emacs/org-present.el")
+(autoload 'org-present "org-present" nil t)
+
+(eval-after-load "org-present"
+  '(progn
+     (add-hook 'org-present-mode-hook
+               (lambda ()
+                 (org-present-big)
+                 (org-display-inline-images)
+                 (org-present-hide-cursor)
+                 (org-present-read-only)))
+     (add-hook 'org-present-mode-quit-hook
+               (lambda ()
+                 (org-present-small)
+                 (org-remove-inline-images)
+                 (org-present-show-cursor)
+                 (org-present-read-write)))))
+
+
+(defun switch-to-evil-mode ()
+  (interactive)
+  (evil-mode 1)
+  (define-key evil-normal-state-map (kbd "k") 'evil-previous-visual-line)
+  (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)				       
+  (define-key evil-normal-state-map (kbd "C-u") 'evil-scroll-up)
+  (define-key evil-visual-state-map (kbd "C-u") 'evil-scroll-up)
+  (define-key evil-insert-state-map (kbd "C-u")
+  (lambda ()
+    (interactive)
+    (evil-delete (point-at-bol) (point))))
+  (evil-mode 0))
+
+(defalias 'scroll-ahead 'scroll-up)
+(defalias 'scroll-behind 'scroll-down)
+
+(defun scroll-one-line-ahead ()
+  "This just scrolls ahead one line."
+  (interactive)
+  (scroll-behind 1))
+
+(defun scroll-one-line-behind ()
+  "This just scrolls one line behind."
+  (interactive)
+  (scroll-up 1))
+
