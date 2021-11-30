@@ -50,10 +50,11 @@
       enable = true;
       enableDefaultConfig = false;
       extraPackages = epkgs: [
-        epkgs.emacsql-sqplite;
+        epkgs.emacsql-sqlite
     ];
-  };
-
+    };
+    windowManager.openbox = { enable = true;};
+};
     # Configure keymap in X11
   services.xserver.layout = "gb";
   services.xserver.xkbOptions = "ctrl:swapcaps";
@@ -87,7 +88,11 @@
      neovim
      gparted
      pandoc
-     thunar
+     tint2
+     okular
+     terminator
+     qutebrowser
+     dmenu
   ];
   
   nixpkgs.config.allowUnfree = true;
