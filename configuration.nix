@@ -46,6 +46,7 @@
 
   services.xserver = {
     enable = true;
+    xfce.enable = true;
     windowManager.exwm = {
       enable = true;
       enableDefaultConfig = false;
@@ -93,6 +94,7 @@
      terminator
      qutebrowser
      dmenu
+     neofetch
   ];
   
   nixpkgs.config.allowUnfree = true;
