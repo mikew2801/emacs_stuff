@@ -20,8 +20,7 @@
   boot.loader.grub.device = "/dev/sda"; # or "nodev" for efi only
 
   networking.hostName = "nixbox"; # Define your hostname.
-  networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-
+  networking.networkmanager.enable = true;
   # Set your time zone.
   time.timeZone = "Europe/Vienna";
   i18n.defaultLocale = "en_UK.UTF-8";
@@ -123,6 +122,6 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "21.05"; # Did you read the comment?
-
+  systemd.services.systemd-user-sessions.enable = false; #(after rebuild do rm /run/nologin)
 }
 
