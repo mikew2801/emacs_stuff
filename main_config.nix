@@ -117,6 +117,7 @@
      viewnior
      skypeforlinux
      wine
+     silver-searcher
   ];
 
  fonts.fonts = with pkgs; [
