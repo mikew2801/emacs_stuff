@@ -16,6 +16,7 @@
    hardware = {
     enableRedistributableFirmware = true;
     enableAllFirmware = true;
+    bluetooth.enable = true;
     opengl = {
       enable = true;
       driSupport32Bit = config.hardware.opengl.enable;
