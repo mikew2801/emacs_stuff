@@ -118,7 +118,8 @@
      skypeforlinux
      wine
      silver-searcher
-     etcher
+     masterpdfeditor
+     #etcher
   ];
 
  fonts.fonts = with pkgs; [
