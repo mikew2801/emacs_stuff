@@ -1,29 +1,38 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
+# This is the configuration shared by all machines
+# There must be a hardware configuration in the /etc/nixos/ local folder and a file named after the host available in the same dropbox directory as this file
+# sudo cp 1_main_nix.nix /etc/nixos/configuration.nix
 
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   imports =
     [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
+      /etc/nixos/hardware-configuration.nix
+      ./nixbox.nix
     ];
 
-  # Use the GRUB 2 boot loader.
-  boot.loader.grub.enable = true;
-  boot.loader.grub.version = 2;
-  # boot.loader.grub.efiSupport = true;
-  # boot.loader.grub.efiInstallAsRemovable = true;
-  # boot.loader.efi.efiSysMountPoint = "/boot/efi";
-  # Define on which hard drive you want to install Grub.
-  boot.loader.grub.device = "/dev/sda"; # or "nodev" for efi only
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "nixbox"; # Define your hostname.
+   hardware = {
+    enableRedistributableFirmware = true;
+    enableAllFirmware = true;
+    bluetooth.enable = true;
+    opengl = {
+      enable = true;
+      driSupport32Bit = config.hardware.opengl.enable;
+    };
+  };
+
+  # Always get the latest kernel
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+  #boot.extraModulePackages = with config.boot.kernelPackages; [rtw89];
+
   networking.networkmanager.enable = true;
+
   # Set your time zone.
   time.timeZone = "Europe/Vienna";
-  i18n.defaultLocale = "en_UK.UTF-8";
+  i18n.defaultLocale = "en_GB.UTF-8";
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
@@ -41,21 +50,13 @@
      keyMap = "uk";
   };
 
+  services.tlp.enable = true;
+  services.emacs.install = true;
+  services.blueman.enable = true;
+
   # Enable the X11 windowing system.
 
-  services.xserver = {
-    enable = true;
-    desktopManager.xfce.enable = true;
-    windowManager.exwm = {
-      enable = true;
-      enableDefaultConfig = false;
-      extraPackages = epkgs: [
-        epkgs.emacsql-sqlite
-    ];
-    };
-    windowManager.openbox = { enable = true;};
-};
-    # Configure keymap in X11
+  # Configure keymap in X11
   services.xserver.layout = "gb";
   services.xserver.xkbOptions = "ctrl:swapcaps";
 
@@ -79,7 +80,7 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
    environment.systemPackages = with pkgs; [
-     vim 
+     vim
      wget
      firefox
      emacs
@@ -93,8 +94,72 @@
      terminator
      qutebrowser
      dmenu
+     libreoffice-fresh
+     mate.engrampa
+     vlc
+     rofi
+     dmenu
+     brave
+     qbittorrent
+     papirus-icon-theme
+     lyx
+     texlive.combined.scheme-full
+     viewnior
+     skypeforlinux
+     wine
+     silver-searcher
+     masterpdfeditor
+     zip
+     unzip
+     pdftk
+     libertine
+     openconnect
+     tlp
+     powertop
+     ripgrep
+     gimp
+     shutter
+     ibus
+     ibus-engines.m17n
+     brightnessctl
+     imagemagick
+     wmctrl
+     sublime
+     networkmanagerapplet
+     xfce.xfce4-terminal
+     lispPackages.clx
+     python
+     python3
+     sbcl
+     xorg.xf86videoamdgpu
+     pavucontrol
+     pa_applet
+     flameshot
+     lispPackages.xembed
+     lispPackages.clx
+     lispPackages.cl-ppcre
+     lispPackages.alexandria
+     lispPackages.clx-truetype
+     feh
+     i3blocks
+     ispell
+     picom
+     gnome.gnome-boxes
+     #etcher
   ];
-  
+
+ fonts.fonts = with pkgs; [
+  noto-fonts
+  noto-fonts-cjk
+  noto-fonts-emoji
+  liberation_ttf
+  fira-code
+  fira-code-symbols
+  mplus-outline-fonts
+  dina-font
+  proggyfonts
+  ];
+
   nixpkgs.config.allowUnfree = true;
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -124,4 +189,3 @@
   system.stateVersion = "21.05"; # Did you read the comment?
   systemd.services.systemd-user-sessions.enable = false; #(after rebuild do rm /run/nologin)
 }
-
