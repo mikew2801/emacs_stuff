@@ -1,5 +1,6 @@
 ;(load "/home/michael/Dropbox/3_Emacs/Common/test.el")
-(load "/home/michael/Dropbox/3_Emacs/Common/new_main.el")
+;(load "/home/michael/Dropbox/3_Emacs/Common/backup/.el")
+(load "/home/michael/Dropbox/3_Emacs/Common/backup/new_main_evil_experimental.el")
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -81,4 +82,5 @@
  '(mode-line-inactive ((t (:background "azure4")))))
 (put 'narrow-to-region 'disabled nil)
 
-(desktop-environment-mode)
+(xmm)
+(shell-command "~/remap_tab.sh")
