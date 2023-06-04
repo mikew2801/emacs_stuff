@@ -1,0 +1,68 @@
+#+TITLE:Configuration for Void Systems
+#+LATEX_HEADER_EXTRA: \usepackage{natbib}
+#+LATEX_HEADER_EXTRA: \usepackage{polyglossia,fontspec,xunicode}
+#+LATEX_HEADER_EXTRA: \setmainfont[Ligatures=TeX]{Liberation Serif}
+#+LATEX_HEADER_EXTRA: \usepackage[a4paper, total={6in, 8in}]{geometry}
+#+OPTIONS: toc:nil
+
+#+STARTUP: hideblocks
+
+* Installation script
+
+#+begin_src bash
+sudo xbps-install -Syu
+sudo xbps-install alacritty-0.12.1_1 alsa-plugins-pulseaudio-1.2.7.1_1 alsa-utils-1.2.9_1 arandr-0.1.11_1 arc-icon-theme-20161122_1 aspell-el-0.08.0_3 aspell-en-2020.12.07_2 autoconf-2.71_1 automake-1.16.5_1 autorandr-1.13.3_1 base-system-0.114_1 bison-3.7.6_1 blueman-2.3.5_1 breeze-blue-cursor-theme-1.0_3 breeze-snow-cursor-theme-5.27.4_1 catfish-4.16.4_2 cinnamon-5.4.9_2 cryptsetup-2.6.1_1 dejavu-fonts-ttf-2.37_2 dmenu-5.2_1 dropbox-2023.02.27+cf4ccaa_1 emacs-gtk3-28.2_2 emptty-0.10.0_1 engrampa-1.26.1_1 fakeroot-1.29_1 feh-3.10_1 firefox-113.0_1 flex-2.6.4_3 font-misc-misc-1.1.2_7 gedit-44.2_1 gimp-2.10.32_4 git-2.40.1_1 gnome-keyring-42.1_1 gnome-themes-standard-3.28_3 gpart-0.3_4 gparted-1.5.0_1 grub-i386-efi-2.06_3 grub-x86_64-efi-2.06_3 gscan2pdf-2.13.2_2 gvfs-afc-1.50.2_1 gvfs-mtp-1.50.2_1 gvfs-smb-1.50.2_1 ibus-1.5.28_2 ibus-m17n-1.4.5_1 indic-otf-0.2_4 libreoffice-7.5.3.2_1 lightdm-1.32.0_2 lightdm-gtk-greeter-1.8.5_5 lvm2-2.02.187_2 lxappearance-0.6.3_5 lxdm-0.5.3_4 lxinput-0.3.5_3 lyx-2.3.7r1_1 make-4.3_3 mariadb-10.5.10_5 mdadm-4.2_1 mu-1.6.1_1 neofetch-7.1.0_2 network-manager-applet-1.30.0_2 nix-2.11.0_5 ntfs-3g-2022.10.3_1 offlineimap-8.0.0_3 okular-23.04.0_1 p7zip-22.01_2 pandoc-2.17.1.1_1 papirus-icon-theme-20230301_1 patch-2.7.6_4 pavucontrol-5.0_2 pdftk-2.02_4 picom-10.2_1 pkgconf-1.9.3_1 polybar-3.6.3_1 python-pip-20.3.4_1 qbittorrent-4.5.2_1 qutebrowser-2.5.4_1 ripgrep-13.0.0_2 rofi-1.7.5_1 rsync-3.2.7_1 rtorrent-0.9.8_3 setxkbmap-1.3.3_1 shotcut-22.12.21_1 terminus-font-4.49.1_1 texinfo-7.0.3_1 texlive-bibtexextra-2021.58697_1 texlive-core-2021.58710_1 texlive-fontsextra-2021.58704_1 texlive-formatsextra-2021.57972_1 texlive-games-2021.56833_1 texlive-humanities-2021.58589_1 texlive-latexextra-2021.58668_1 texlive-music-2021.58331_1 texlive-pictures-2021.58558_1 texlive-pstricks-2021.58293_1 texlive-publishers-2021.58683_1 texlive-science-2022.62977_1 timeshift-22.11.2_1 tint2-17.0.2_1 tk-8.6.13_1 udisks2-2.9.4_1 unrar-6.2.5_1 unzip-6.0_15 viewnior-1.8_1 vim-9.0.1562_2 vlc-3.0.18_3 void-docs-browse-2021.10.06_1 void-repo-nonfree-9_6 wireless_tools-29_10 wmctrl-1.07_5 xauth-1.1.2_1 xcursor-themes-1.0.7_1 xfce4-4.18.0_1 xmodmap-1.0.11_1 xorg-input-drivers-7.6_4 xorg-minimal-1.2_2 xorg-video-drivers-7.6_22 zip-3.0_6
+#+end_src
+
+* Hardware
+
+** Installing dropbox
+
+#+begin_src bash
+sudo xbps-install void-repo-nonfree
+sudo xbps-install dropbox
+#+end_src
+
+** Devanagari Font
+
+If you install the Noto fonts package and set the font to Noto Serif Devanagari (without the “Regular”) it should work.
+
+** Installing Brave
+
+Download template file from here https://notabug.org/reback00/void-goodies/src/master/srcpkgs/brave-bin.
+
+Put it in ~/void-packages/srcpkgs/brave-bin. Then execute the following. Note that the lines are commented assuming that you’ve already set up xbps sources.
+
+#+begin_src bash
+sudo xbps-install xtools
+#git clone https://github.com/void-linux/void-packages
+cd void-packages
+./xbps-src binary-bootstrap
+# Do the above once if not done already.
+# Copy this `brave-bin` folder under `srcpkgs` folder, then...
+./xbps-src pkg brave-bin
+xi brave-bin
+#+end_src
+** Void Non-free Repo
+
+#+begin_src bash
+xbps-install -S void-repo-nonfree
+#+end_src
+
+** Reconfiguring apple keyboard
+
+#+begin_src bash 
+# Change the settings file
+sudo echo "options hid_apple swap_opt_cmd=1" > /etc/modprobe.d/hid_apple.conf
+
+# Remaking the initramfs
+sudo dracut --force
+#+end_src
+
+** Enabling touchpad
+
+This doesn’t seem to work by default. To enable add the line «Option "Tapping" "on"» to the first entry in this file: /usr/share/X11/xorg.conf.d/70-synaptics.conf. It needs to be enabled separately in gnome.
+
+#+begin_src bash
+sudo vim /etc/share/X11/xorg.conf.d/70-synaptics.conf
+#+end_src
