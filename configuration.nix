@@ -2,15 +2,21 @@
 # There must be a hardware configuration in the /etc/nixos/ local folder and a file named after the host available in the same dropbox directory as this file
 # sudo cp 1_main_nix.nix /etc/nixos/configuration.nix
 
+# Consider adding gphoto2, gphoto2fs, and digikam to the package manifest
+
 { config, pkgs, lib, ... }:
+
+# Change the second import here to correspond to the machine you’re updating
 
 {
   imports =
     [ # Include the results of the hardware scan.
       /etc/nixos/hardware-configuration.nix
-      ./nixbox.nix
+      ./worknix.nix
     ];
-
+  
+  boot.loader.grub.default = "saved";
+  boot.loader.grub.efiSupport = true;
   boot.loader.grub.enable = true;
   boot.loader.grub.version = 2;
   boot.loader.grub.device = "nodev";
@@ -30,6 +36,10 @@
   # Always get the latest kernel
   boot.kernelPackages = pkgs.linuxPackages_latest;
   #boot.extraModulePackages = with config.boot.kernelPackages; [rtw89];
+  #boot.kernelPackages = pkgs.linuxKernel.kernels.linux_5_19;
+  #boot.kernelPackages = pkgs.linuxPackages_testing;
+  #boot.kernelPackages = pkgs.linuxPackages_5_19;
+  #boot.kernelPackages = pkgs.linuxKernel.packages.linux_5_19;
 
   networking.networkmanager.enable = true;
 
@@ -53,9 +63,11 @@
      keyMap = "uk";
   };
 
-  services.tlp.enable = true;
+  #services.tlp.enable = true;
   services.emacs.install = true;
   services.blueman.enable = true;
+
+  services.gvfs.enable = true;
 
   # Enable the X11 windowing system.
 
@@ -83,18 +95,24 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
    environment.systemPackages = with pkgs; [
+     gscan2pdf
+     neofetch
+     mariadb
+     offlineimap
+     openvpn
      vim
      wget
      firefox
      emacs
+     alacritty
      git
+     samba
      dropbox
      neovim
      gparted
      pandoc
      tint2
      okular
-     terminator
      qutebrowser
      dmenu
      libreoffice-fresh
@@ -131,37 +149,84 @@
      networkmanagerapplet
      xfce.xfce4-terminal
      lispPackages.clx
-     python
-     python3
      sbcl
      xorg.xf86videoamdgpu
      pavucontrol
      pa_applet
      flameshot
      lispPackages.xembed
-     lispPackages.clx
      lispPackages.cl-ppcre
      lispPackages.alexandria
      lispPackages.clx-truetype
      feh
-     i3blocks
      ispell
      picom
      gnome.gnome-boxes
-     #etcher
+     xfce.thunar
+     aspell
+     networkmanager_dmenu
+     polybar
+     pywal
+     calc
+     gcc
+     nix-index
+     pciutils
+     usbutils
+     libertine
+     gnome.cheese
+     noto-fonts
+     noto-fonts-extra    
+     linuxHeaders
+     killall
+     gnumake
+     zoom-us
+     gnome.gnome-flashback
+     vice
+     ghostscript
+     jabref
   ];
+   
+   # Necessary for installing etcher
+   nixpkgs.config.permittedInsecurePackages = [
+     "electron-12.2.3"
+     "openjdk-18+36"
+   ];
 
- fonts.fonts = with pkgs; [
-  noto-fonts
-  noto-fonts-cjk
-  noto-fonts-emoji
-  liberation_ttf
-  fira-code
-  fira-code-symbols
-  mplus-outline-fonts
-  dina-font
-  proggyfonts
-  ];
+   environment.etc."dual-function-keys.yaml".text = ''
+    TIMING:
+      TAP_MILLISEC: 250
+      DOUBLE_TAP_MILLISEC: 150
+
+    MAPPINGS:
+      - KEY: KEY_TAB
+        TAP: KEY_TAB 
+        HOLD: KEY_LEFTMETA
+      - KEY: KEY_RIGHTALT
+        TAP: KEY_TAB
+        HOLD: KEY_TAB
+ '';
+
+   services.interception-tools = {
+    enable = true;
+    plugins = [ pkgs.interception-tools-plugins.dual-function-keys ];
+    udevmonConfig = ''
+      - JOB: "${pkgs.interception-tools}/bin/intercept -g $DEVNODE | ${pkgs.interception-tools-plugins.dual-function-keys}/bin/dual-function-keys -c /etc/dual-function-keys.yaml | ${pkgs.interception-tools}/bin/uinput -d $DEVNODE"
+        DEVICE:
+          EVENTS:
+    '';
+  };
+
+# fonts.fonts = with pkgs; [
+# noto-fonts
+# noto-fonts-cjk
+#  noto-fonts-emoji
+#  liberation_ttf
+#  fira-code
+#  fira-code-symbols
+#  mplus-outline-fonts
+#  dina-font
+#  proggyfonts
+#  ];
 
   nixpkgs.config.allowUnfree = true;
   # Some programs need SUID wrappers, can be configured further or are
@@ -171,6 +236,15 @@
   #   enable = true;
   #   enableSSHSupport = true;
   # };
+
+
+nixpkgs.overlays = [
+  (self: super: {
+    dwm = super.dwm.overrideAttrs (oldAttrs: rec {
+      configFile = (builtins.readFile /home/michael/.config/dwm/config.h);
+    });
+  })
+];
 
   # List services that you want to enable:
 
@@ -186,7 +260,7 @@
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
+
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "21.05"; # Did you read the comment?
