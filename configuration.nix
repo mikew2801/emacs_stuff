@@ -1,26 +1,13 @@
-# This is the configuration shared by all machines
-# There must be a hardware configuration in the /etc/nixos/ local folder and a file named after the host available in the same dropbox directory as this file
-# sudo cp 1_main_nix.nix /etc/nixos/configuration.nix
-
-# Consider adding gphoto2, gphoto2fs, and digikam to the package manifest
-
 { config, pkgs, lib, ... }:
-
-# Change the second import here to correspond to the machine you’re updating
 
 {
   imports =
-    [ # Include the results of the hardware scan.
+    [
       /etc/nixos/hardware-configuration.nix
-      ./worknix.nix
+      ./powernix.nix
     ];
-  
-  boot.loader.grub.default = "saved";
-  boot.loader.grub.efiSupport = true;
-  boot.loader.grub.enable = true;
-  boot.loader.grub.version = 2;
-  boot.loader.grub.device = "nodev";
-  boot.loader.grub.useOSProber = true;
+
+  boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
    hardware = {
@@ -29,77 +16,70 @@
     bluetooth.enable = true;
     opengl = {
       enable = true;
-      driSupport32Bit = config.hardware.opengl.enable;
+      driSupport32Bit = config.hardware.graphics.enable;
     };
   };
 
-  # Always get the latest kernel
   boot.kernelPackages = pkgs.linuxPackages_latest;
-  #boot.extraModulePackages = with config.boot.kernelPackages; [rtw89];
-  #boot.kernelPackages = pkgs.linuxKernel.kernels.linux_5_19;
-  #boot.kernelPackages = pkgs.linuxPackages_testing;
-  #boot.kernelPackages = pkgs.linuxPackages_5_19;
-  #boot.kernelPackages = pkgs.linuxKernel.packages.linux_5_19;
 
   networking.networkmanager.enable = true;
 
-  # Set your time zone.
-  time.timeZone = "Europe/Vienna";
-  i18n.defaultLocale = "en_GB.UTF-8";
-
-  # The global useDHCP flag is deprecated, therefore explicitly set to false here.
-  # Per-interface useDHCP will be mandatory in the future, so this generated config
-  # replicates the default behaviour.
   networking.useDHCP = false;
   networking.interfaces.enp0s3.useDHCP = true;
 
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
+  time.timeZone = "Europe/Vienna";
+  i18n.defaultLocale = "en_GB.UTF-8";
 
-  # Select internationalisation properties.
    console = {
      font = "Lat2-Terminus16";
      keyMap = "uk";
   };
 
   #services.tlp.enable = true;
-  services.emacs.install = true;
   services.blueman.enable = true;
+  services.flatpak.enable = true;
+  services.gnome.gnome-keyring.enable = true;
+
+  # Make sure flathub repository is added for all users
+  systemd.services.flatpak-repo = {
+    wantedBy = [ "multi-user.target" ];
+    path = [ pkgs.flatpak ];
+    script = ''
+      flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    '';
+  };
 
   services.gvfs.enable = true;
 
-  # Enable the X11 windowing system.
-
-  # Configure keymap in X11
   services.xserver.layout = "gb";
   services.xserver.xkbOptions = "ctrl:swapcaps";
 
-  # Enable CUPS to print documents.
   services.printing.enable = true;
-
-  # Enable sound.
-  sound.enable = true;
-  hardware.pulseaudio.enable = true;
 
   # Enable touchpad support (enabled default in most desktopManager).
   services.xserver.libinput.enable = true;
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
    users.users.michael = {
      isNormalUser = true;
      password = "test";
      extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
    };
 
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
    environment.systemPackages = with pkgs; [
-     gscan2pdf
+     lite-xl
+     xorg.xmodmap
+     hypnotix
+     #discord
+     hunspell
+     pkgs.hunspellDicts.en-gb-ise
+     arandr
+     qbittorrent
+     gnome-keyring
      neofetch
      mariadb
      offlineimap
      openvpn
+     libertine
      vim
      wget
      firefox
@@ -111,9 +91,7 @@
      neovim
      gparted
      pandoc
-     tint2
-     okular
-     qutebrowser
+     kdePackages.okular
      dmenu
      libreoffice-fresh
      mate.engrampa
@@ -121,21 +99,19 @@
      rofi
      dmenu
      brave
-     qbittorrent
      papirus-icon-theme
      lyx
      texlive.combined.scheme-full
      viewnior
-     skypeforlinux
      wine
      silver-searcher
-     masterpdfeditor
+     masterpdfeditor4
      zip
      unzip
      pdftk
      libertine
      openconnect
-     tlp
+     #tlp
      powertop
      ripgrep
      gimp
@@ -145,23 +121,15 @@
      brightnessctl
      imagemagick
      wmctrl
-     sublime
      networkmanagerapplet
-     xfce.xfce4-terminal
-     lispPackages.clx
      sbcl
      xorg.xf86videoamdgpu
      pavucontrol
      pa_applet
-     flameshot
-     lispPackages.xembed
-     lispPackages.cl-ppcre
-     lispPackages.alexandria
-     lispPackages.clx-truetype
+     acpi
      feh
      ispell
      picom
-     gnome.gnome-boxes
      xfce.thunar
      aspell
      networkmanager_dmenu
@@ -173,17 +141,21 @@
      pciutils
      usbutils
      libertine
-     gnome.cheese
+     cheese
      noto-fonts
-     noto-fonts-extra    
      linuxHeaders
      killall
      gnumake
      zoom-us
-     gnome.gnome-flashback
-     vice
      ghostscript
-     jabref
+     maiko
+     emacsPackages.exwm
+     rclone
+     lxappearance
+     home-manager
+     flatpak
+     sqlite
+     internetarchive
   ];
    
    # Necessary for installing etcher
@@ -245,6 +217,12 @@ nixpkgs.overlays = [
     });
   })
 ];
+
+i18n.inputMethod = {
+  enabled = "ibus";
+  ibus.engines = with pkgs.ibus-engines; [ m17n ];
+};
+
 
   # List services that you want to enable:
 
