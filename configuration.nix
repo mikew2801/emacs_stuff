@@ -7,8 +7,10 @@
       ./powernix.nix
     ];
 
+
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.extraModprobeConfig = "options bluetooth disable_ertm=1";
 
    hardware = {
     enableRedistributableFirmware = true;
@@ -20,10 +22,10 @@
     };
   };
 
+
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   networking.networkmanager.enable = true;
-
   networking.useDHCP = false;
   networking.interfaces.enp0s3.useDHCP = true;
 
@@ -35,9 +37,12 @@
      keyMap = "uk";
   };
 
+
   #services.tlp.enable = true;
   services.blueman.enable = true;
   services.flatpak.enable = true;
+
+  xdg.portal.enable = true;
   services.gnome.gnome-keyring.enable = true;
 
   # Make sure flathub repository is added for all users
@@ -50,14 +55,23 @@
   };
 
   services.gvfs.enable = true;
-
   services.xserver.layout = "gb";
   services.xserver.xkbOptions = "ctrl:swapcaps";
-
   services.printing.enable = true;
 
   # Enable touchpad support (enabled default in most desktopManager).
   services.xserver.libinput.enable = true;
+
+  services.mullvad-vpn.enable = true;
+
+  # Optional GUI app
+  services.mullvad-vpn.package = pkgs.mullvad-vpn;
+
+  # Important for Mullvad routing
+  networking.iproute2.enable = true;
+
+  # Mullvad currently works best with resolved enabled
+  services.resolved.enable = true;
 
    users.users.michael = {
      isNormalUser = true;
@@ -65,19 +79,25 @@
      extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
    };
 
+
    environment.systemPackages = with pkgs; [
+     chromium
+     libtool
+     mpv
+     ffmpeg
+     cmake
+     opencode
      lite-xl
      xorg.xmodmap
-     hypnotix
-     #discord
      hunspell
      pkgs.hunspellDicts.en-gb-ise
      arandr
      qbittorrent
      gnome-keyring
-     neofetch
+     fastfetch
      mariadb
      offlineimap
+     pkgs.gnome-tweaks
      openvpn
      libertine
      vim
@@ -87,7 +107,8 @@
      alacritty
      git
      samba
-     dropbox
+     #dropbox
+     dropbox-cli
      neovim
      gparted
      pandoc
@@ -156,13 +177,26 @@
      flatpak
      sqlite
      internetarchive
-  ];
-   
-   # Necessary for installing etcher
-   nixpkgs.config.permittedInsecurePackages = [
-     "electron-12.2.3"
-     "openjdk-18+36"
-   ];
+     fira-code
+     nerd-fonts.fira-code
+     typst
+     bibata-cursors
+     xdotool
+     qemacs
+     whitesur-gtk-theme
+     whitesur-icon-theme
+     mate.mate-tweak
+     mate.mate-menus
+     flameshot
+     krita
+     ocrmypdf
+     poppler
+     poppler-utils
+     protonvpn-gui
+     qutebrowser
+     fd
+     gnome-browser-connector
+  ];  
 
    environment.etc."dual-function-keys.yaml".text = ''
     TIMING:
@@ -188,6 +222,13 @@
     '';
   };
 
+fonts.packages = with pkgs; [ 
+  noto-fonts
+  fira-code
+  libertine
+  nerd-fonts.fira-code
+];
+
 # fonts.fonts = with pkgs; [
 # noto-fonts
 # noto-fonts-cjk
@@ -201,46 +242,13 @@
 #  ];
 
   nixpkgs.config.allowUnfree = true;
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
-
-
-nixpkgs.overlays = [
-  (self: super: {
-    dwm = super.dwm.overrideAttrs (oldAttrs: rec {
-      configFile = (builtins.readFile /home/michael/.config/dwm/config.h);
-    });
-  })
-];
 
 i18n.inputMethod = {
   enabled = "ibus";
   ibus.engines = with pkgs.ibus-engines; [ m17n ];
 };
 
-
-  # List services that you want to enable:
-
-  # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
-
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "21.05"; # Did you read the comment?
-  systemd.services.systemd-user-sessions.enable = false; #(after rebuild do rm /run/nologin)
+  system.stateVersion = "21.05";
+ #(after rebuild do rm /run/nologin)
+  systemd.services.systemd-user-sessions.enable = false;
 }
