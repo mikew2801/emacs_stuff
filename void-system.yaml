@@ -1,0 +1,212 @@
+---
+- name: Configure my Void Linux workstation
+  hosts: localhost
+  connection: local
+  become: true
+
+  vars:
+    packages:
+      # Desktop environments / window managers
+      - plasma
+      - kde-baseapps
+      - dwm
+      - dmenu
+      - rofi
+      - polybar
+      - picom
+
+      # Display manager
+      - lightdm
+      - lightdm-gtk-greeter
+
+      # Terminals / editors
+      - alacritty
+      - emacs
+      - vim
+      - neovim
+      - qemacs
+      - gedit
+
+      # Development
+      - autoconf
+      - automake
+      - bison
+      - fakeroot
+      - flex
+      - gcc
+      - git
+      - m4
+      - make
+      - patch
+      - pkgconf
+      - texinfo
+      - xtools
+
+      # Libraries / headers
+      - libX11-devel
+      - libXinerama-devel
+      - libXft-devel
+      - poppler-devel
+      - poppler-glib-devel
+      - zlib-devel
+
+      # Networking
+      - NetworkManager
+      - network-manager-applet
+      - wireless_tools
+      - wpa_supplicant
+      - wireguard-tools
+      - wireguard-dkms
+      - curl
+      - rsync
+
+      # Bluetooth
+      - blueman
+      - libspa-bluetooth
+
+      # File management / disks
+      - Thunar
+      - thunar-volman
+      - gvfs
+      - udisks2
+      - ntfs-3g
+      - gpart
+      - gparted
+      - p7zip
+      - unrar
+      - unzip
+      - zip
+      - zstd
+      - engrampa
+
+      # Documents / office
+      - libreoffice
+      - okular
+      - pandoc
+      - pdftk
+      - poppler
+      - ghostscript
+
+      # Spelling / language
+      - aspell-en
+      - hunspell
+      - hunspell-en_GB-ize
+      - ibus
+      - ibus-m17n
+
+      # Multimedia
+      - audacity
+      - cheese
+      - gimp
+      - vlc
+      - pavucontrol
+      - youtube-dl
+
+      # Internet
+      - qbittorrent
+      - rtorrent
+      - offlineimap
+      - mu
+      - mu4e
+
+      # Fonts / appearance
+      - nerd-fonts
+      - dejavu-fonts-ttf
+      - terminus-font
+      - font-misc-misc
+      - papirus-icon-theme
+      - gnome-themes-standard
+      - lxappearance
+      - lxinput
+
+      # X11 tools
+      - arandr
+      - autorandr
+      - feh
+      - scrot
+      - setxkbmap
+      - wmctrl
+      - xauth
+      - xinput
+      - xrdb
+      - xsetroot
+
+      # Power / laptop
+      - acpi
+      - brightnessctl
+      - tlp
+
+      # System tools
+      - fastfetch
+      - linux-firmware
+      - linux-tools
+      - sudo
+      - timeshift
+      - usbutils
+
+      # Void utilities / repositories
+      - void-docs-browse
+      - void-live-audio
+      - void-repo-nonfree
+
+      # Database
+      - mariadb
+
+      # Keyboard
+      - keyd
+
+  tasks:
+
+    # ---------------------------------------------------------
+    # PACKAGES
+    # ---------------------------------------------------------
+
+    - name: Install workstation packages
+      community.general.xbps:
+        name: "{{ packages }}"
+        state: present
+        update_cache: true
+
+    # ---------------------------------------------------------
+    # RUNIT SERVICES
+    # ---------------------------------------------------------
+
+    - name: Enable essential services
+      ansible.builtin.file:
+        src: "/etc/sv/{{ item }}"
+        dest: "/var/service/{{ item }}"
+        state: link
+      loop:
+        - dbus
+        - NetworkManager
+        - bluetoothd
+        - lightdm
+        - keyd
+
+    # ---------------------------------------------------------
+    # DIRECTORIES
+    # ---------------------------------------------------------
+
+    - name: Create local source directory
+      ansible.builtin.file:
+        path: /usr/local/src
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    # ---------------------------------------------------------
+    # XFCE
+    # ---------------------------------------------------------
+
+    # We're deliberately NOT removing XFCE yet.
+    #
+    # Once Plasma + dwm + LightDM are confirmed working,
+    # uncomment this:
+    #
+    # - name: Remove XFCE
+    #   community.general.xbps:
+    #     name:
+    #       - xfce4
+    #       - xfce4-apps
+    #     state: absent
