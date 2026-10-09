@@ -1,0 +1,254 @@
+#+title: Nyāya Void Configuration
+
+* Basic setup
+
+Once you've tangled the Org file with M-x org-babel-tangle, go to the directory containing the generated nyaya-void-setup.sh and run:
+
+#+begin_src shell
+chmod +x nyaya-void-setup.sh
+./nyaya-void-setup.sh
+#+end_src
+
+Do not use sudo ./nyaya-void-setup.sh — the script already uses sudo for the commands that need root privileges.
+
+** Setup key utilities
+
+#+begin_src shell :tangle nyaya-void-setup.sh
+#!/bin/bash
+
+# Update XBPS and the system
+sudo xbps-install -y -u xbps
+sudo xbps-install -y -Suv
+
+# Enable non-free repository and install basic utilities
+sudo xbps-install -y void-repo-nonfree neovim engrampa zip unzip \
+    emacs-gtk3 xmodmap git
+
+# Refresh repositories after enabling non-free
+sudo xbps-install -y -Suv
+
+# Install Dropbox
+sudo xbps-install -y dropbox
+
+# Start Dropbox as the normal user
+dropbox start -i
+#+end_src
+
+** Remap Caps Lock and Control
+
+#+begin_src shell :tangle nyaya-void-setup.sh
+cat << 'EOF' > "$HOME/modmap"
+!
+! Swap Caps_Lock and Control_L
+!
+remove Lock = Caps_Lock
+remove Control = Control_L
+keysym Control_L = Caps_Lock
+keysym Caps_Lock = Control_L
+add Lock = Caps_Lock
+add Control = Control_L
+EOF
+
+echo "Xmodmap configuration written to $HOME/modmap."
+#+end_src
+
+** Install base packages
+
+#+begin_src shell :tangle nyaya-void-setup.sh
+sudo xbps-install -y \
+    alacritty \
+    arandr \
+    helix \
+    aspell-en \
+    autoconf \
+    automake \
+    autorandr \
+    bison \
+    blueman \
+    dmenu \
+    fakeroot \
+    feh \
+    flex \
+    gcc \
+    gedit \
+    gimp \
+    git \
+    gpart \
+    gparted \
+    ibus \
+    ibus-m17n \
+    libreoffice \
+    lxappearance \
+    lxinput \
+    m4 \
+    make \
+    mariadb \
+    network-manager-applet \
+    NetworkManager \
+    ntfs-3g \
+    okular \
+    p7zip \
+    pandoc \
+    patch \
+    pavucontrol \
+    pkgconf \
+    pdftk \
+    qbittorrent \
+    ripgrep \
+    rofi \
+    rsync \
+    rtorrent \
+    sudo \
+    texinfo \
+    Thunar \
+    thunar-volman \
+    timeshift \
+    usbutils \
+    viewnior \
+    vim \
+    vlc \
+    wireless_tools \
+    wpa_supplicant \
+    polybar \
+    gvfs \
+    wmctrl \
+    mu \
+    offlineimap \
+    curl \
+    xinput \
+    picom \
+    xrdb \
+    nerd-fonts \
+    dejavu-fonts-ttf \
+    engrampa \
+    font-misc-misc \
+    gnome-themes-standard \
+    lightdm \
+    lightdm-gtk-greeter \
+    linux-tools \
+    mu4e \
+    neovim \
+    poppler-devel \
+    poppler-glib-devel \
+    setxkbmap \
+    terminus-font \
+    tlp \
+    udisks2 \
+    unzip \
+    void-docs-browse \
+    void-live-audio \
+    void-repo-nonfree \
+    xauth \
+    zip \
+    zlib-devel \
+    youtube-dl \
+    qemacs \
+    hunspell \
+    hunspell-en_GB-ize \
+    papirus-icon-theme \
+    popplerc \
+    linux-firmware \
+    acpi \
+    brightnessctl \
+    cheese \
+    fastfetch \
+    xsetroot \
+    libX11-devel \
+    libXinerama-devel \
+    libXft-devel \
+    libspa-bluetooth \
+    gnome \
+    keyd \
+    wireguard-tools \
+    wireguard-dkms \
+    zstd \
+    xtools \
+    scrot \
+    ghostscript \
+    audacity
+#+end_src
+* DWM Setup
+
+Using DWM 6.7. This assumes that Dropbox is already cloned. The main DWM config (6.7) is [[/home/michael/Dropbox/dwm-6.7/config.h][here]]. Just go to the directory and use:
+
+#+begin_src shell
+sudo make clean install
+#+end_src
+* Librewolf
+
+See here for installation instructions on Void: https://github.com/index-0/librewolf-void.
+
+Run this with C-c C-c:
+
+#+begin_src sh
+echo 'repository=https://github.com/index-0/librewolf-void/releases/latest/download/' \
+    | sudo tee /etc/xbps.d/20-librewolf.conf > /dev/null
+#+end_src
+* KDE5 Settings
+
+** Keyboard settings
+
+#+begin_src conf :tangle ~/.config/kxkbrc
+[Layout]
+DisplayNames=
+LayoutList=gb
+LayoutLoopCount=-1
+Model=pc105
+Options=ctrl:swapcaps
+ResetOldOptions=true
+Use=true
+VariantList=
+#+end_src
+* Xresources
+
+You can make EXWM/DWM (or any window manager) viewable by this. You might want to use different settings for laptop/desktop mode.
+
+You might need to run xrdb -merge ~/.Xresources if this doesn’t work at first.
+
+Best for laptop screen: *144* (Xft.dpi); best for HDMI output: *126*
+
+Xcursor.theme: Breeze-Adapta-Cursor - old adapta cursor
+
+#+begin_src config :tangle ~/.Xresources
+Xft.dpi: 144
+Xcursor.theme: xcursor-breeze-neutral
+Xcursor.size: 24
+Xft.antialias: 1
+Xft.hinting: 1
+Xft.hintstyle: hintslight
+Xft.rgba: rgb
+#+end_src
+* EXM Desktop
+
+#+begin_src conf :tangle /sudo::/usr/share/xsessions/exwm.desktop
+[Desktop Entry]
+Name=EXWM
+Comment=Emacs X Window Manager
+Exec=emacs 
+TryExec=emacs
+Type=XSession
+#+end_src
+
+* Bluetooth
+
+With pulseaudio, this should suffice:
+
+#+begin_src shell :dir /sudo::
+sudo xbps-install -Suv bluez bluez-alsa
+sudo ln -s /etc/sv/bluetoothd /var/service/
+sudo sv start bluetoothd
+sudo sv status bluetoothd
+bluetoothctl
+#+end_src
+* .xprofile (autostart)
+
+#+begin_src config :tangle ~/.xprofile
+setxkbmap gb
+xmodmap ~/modmap
+emacs --daemon
+pipewire &
+~/Dropbox/scripts/dwmbar.sh &
+~/Dropbox/scripts/time.sh &
+#+end_src
+
+Add if you are using pulseaudio
